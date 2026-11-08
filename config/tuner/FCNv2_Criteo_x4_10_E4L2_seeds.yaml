@@ -1,0 +1,9 @@
+# Seed variance of FCN_sp with the paper's Criteo layers (4 ECN + 2 LCN):
+#   scripts/sweep.sh config/tuner/FCNv2_Criteo_x4_10_E4L2_seeds.yaml 5
+base_config: ./config/
+base_expid: FCNv2_Criteo_x4_10_E4L2
+dataset_id: Criteo_x4_10
+
+tuner_space:
+    seed: [2021, 2022, 2023, 2024, 2025]
+    save_train_pred: True   # predictions for the 5-seed ensemble / distillation teacher

@@ -1,0 +1,11 @@
+fuxictr==2.3.10
+wandb
+torch
+polars>=1.30
+ray[data]
+pyarrow
+pandas
+numpy
+scikit-learn
+PyYAML
+tqdm

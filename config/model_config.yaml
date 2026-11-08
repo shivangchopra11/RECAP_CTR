@@ -1,0 +1,3034 @@
+Base:
+    model_root: './checkpoints/'
+    num_workers: 8
+    verbose: 0              # 1 = tqdm progress bars (noisy in Slurm logs)
+    early_stop_patience: 2
+    pickle_feature_encoder: True
+    save_best_only: True
+    eval_steps: null
+    debug_mode: False
+    group_id: null
+    use_features: null
+    feature_specs: null
+    feature_config: null
+    wandb: {project: fcn-ctr, entity: null, mode: online, train_metrics: True}
+    save_train_pred: False  # True: also save row-aligned train-set predictions (distillation teacher)
+
+# ==================================================================
+# Criteo_x4_10 -- FCN_sp (FCNv2) with the paper's reported Criteo layers
+# (Sec. 6.3.3: 4 ECN + 2 LCN; author log FCNv2_Criteo_017: test AUC 0.816352)
+# ==================================================================
+
+FCNv2_Criteo_x4_10_E4L2:
+    model: FCNv2
+    dataset_id: Criteo_x4_10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-5
+    net_regularizer: 0
+    batch_size: 8192
+    embedding_dim: 16
+    exp_num_layers: 4
+    lin_num_layers: 2
+    net_dropout: 0.1
+    batch_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+
+FCNv2_Criteo_x4_10_E4L2_EMA:
+    model: FCNv2
+    dataset_id: Criteo_x4_10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-5
+    net_regularizer: 0
+    batch_size: 8192
+    embedding_dim: 16
+    exp_num_layers: 4
+    lin_num_layers: 2
+    net_dropout: 0.1
+    batch_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+    early_stop_patience: 4
+
+FCNv2_Criteo_x4_10_E4L2_EMA_d9999:
+    model: FCNv2
+    dataset_id: Criteo_x4_10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-5
+    net_regularizer: 0
+    batch_size: 8192
+    embedding_dim: 16
+    exp_num_layers: 4
+    lin_num_layers: 2
+    net_dropout: 0.1
+    batch_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    ema_decay: 0.9999
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+    early_stop_patience: 4
+
+# Distillation from the FCN_sp 5-seed ensemble (config/tuner/FCNv2_Criteo_x4_10_E4L2_seeds.yaml)
+
+FCNv2_Criteo_x4_10_E4L2_KD:
+    model: FCNv2
+    dataset_id: Criteo_x4_10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-5
+    net_regularizer: 0
+    batch_size: 8192
+    embedding_dim: 16
+    exp_num_layers: 4
+    lin_num_layers: 2
+    net_dropout: 0.1
+    batch_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    teacher_logits: teacher_fcnsp_e4l2_5seed   # mean logit of FCNv2_Criteo_x4_10_E4L2 seeds 2021-2025
+    distill_mode: fusion
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+FCNv2_Criteo_x4_10_E4L2_KDrank:
+    model: FCNv2
+    dataset_id: Criteo_x4_10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-5
+    net_regularizer: 0
+    batch_size: 8192
+    embedding_dim: 16
+    exp_num_layers: 4
+    lin_num_layers: 2
+    net_dropout: 0.1
+    batch_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    teacher_logits: teacher_fcnsp_e4l2_5seed   # mean logit of FCNv2_Criteo_x4_10_E4L2 seeds 2021-2025
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+FCNv2_Criteo_x4_10_E4L2_KDrank_EMA:
+    model: FCNv2
+    dataset_id: Criteo_x4_10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-5
+    net_regularizer: 0
+    batch_size: 8192
+    embedding_dim: 16
+    exp_num_layers: 4
+    lin_num_layers: 2
+    net_dropout: 0.1
+    batch_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    teacher_logits: teacher_fcnsp_e4l2_5seed   # mean logit of FCNv2_Criteo_x4_10_E4L2 seeds 2021-2025
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+    early_stop_patience: 4
+
+# ------------------------------------------------------------------
+# Anytime recursive cross network (RRT / RECAP, MultiTowerRecursiveFCNv2 of CTR_ICLR/final,
+# configs/base/rrt_pair.yaml incl. the refresh block), vendored in src/recap_rrt via src/RecursiveFCN.py.
+# KD teacher: the FCN_sp (exp 4 / lin 2) 5-seed ensemble. Route aggregation: scripts/route_fusion.py.
+# ------------------------------------------------------------------
+
+RecursiveFCN_Criteo_x4_10:
+    model: RecursiveFCN
+    dataset_id: Criteo_x4_10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-5
+    net_regularizer: 0
+    batch_size: 8192
+    embedding_dim: 16
+    net_dropout: 0.1
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    reduce_lr_on_plateau: True
+    rrt_eval_steps: 8          # reference eval_steps: rollout depth of the evaluation forward
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+
+RecursiveFCN_Criteo_x4_10_EMA:
+    model: RecursiveFCN
+    dataset_id: Criteo_x4_10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-5
+    net_regularizer: 0
+    batch_size: 8192
+    embedding_dim: 16
+    net_dropout: 0.1
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    reduce_lr_on_plateau: False
+    rrt_eval_steps: 8          # reference eval_steps: rollout depth of the evaluation forward
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+
+RecursiveFCN_Criteo_x4_10_KD:
+    model: RecursiveFCN
+    dataset_id: Criteo_x4_10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-5
+    net_regularizer: 0
+    batch_size: 8192
+    embedding_dim: 16
+    net_dropout: 0.1
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    reduce_lr_on_plateau: True
+    rrt_eval_steps: 8          # reference eval_steps: rollout depth of the evaluation forward
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    teacher_logits: teacher_fcnsp_e4l2_5seed
+    distill_mode: fusion
+    distill_weight: 1.0
+
+RecursiveFCN_Criteo_x4_10_KD_EMA:
+    model: RecursiveFCN
+    dataset_id: Criteo_x4_10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-5
+    net_regularizer: 0
+    batch_size: 8192
+    embedding_dim: 16
+    net_dropout: 0.1
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    reduce_lr_on_plateau: False
+    rrt_eval_steps: 8          # reference eval_steps: rollout depth of the evaluation forward
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    teacher_logits: teacher_fcnsp_e4l2_5seed
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+
+# ==================================================================
+# Other benchmarks: FCN_sp with the settings of the author's run that matches the paper's table
+# (reference/author_results.csv: Avazu 005 E4L4, KKBox 001 E3L1, ML-1M 008 E2L3, KDD12 016 E6L0),
+# and the recursive model with the per-dataset settings of CTR_ICLR/final. KD teacher per dataset:
+# teacher_fcnsp_5seed = mean logit of FCNv2_<dataset>_00* (config/tuner/FCNv2_<dataset>_seeds.yaml).
+# ==================================================================
+
+# ---------------- Avazu_x4
+
+FCNv2_Avazu_x4:
+    model: FCNv2
+    dataset_id: Avazu_x4
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 0
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    exp_num_layers: 4
+    lin_num_layers: 4
+    net_dropout: 0
+    batch_norm: True
+    layer_norm: False
+    num_heads: 4
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 1
+
+FCNv2_Avazu_x4_EMA:
+    model: FCNv2
+    dataset_id: Avazu_x4
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 0
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    exp_num_layers: 4
+    lin_num_layers: 4
+    net_dropout: 0
+    batch_norm: True
+    layer_norm: False
+    num_heads: 4
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+
+FCNv2_Avazu_x4_EMA_d9999:
+    model: FCNv2
+    dataset_id: Avazu_x4
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 0
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    exp_num_layers: 4
+    lin_num_layers: 4
+    net_dropout: 0
+    batch_norm: True
+    layer_norm: False
+    num_heads: 4
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    ema_decay: 0.9999
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+
+FCNv2_Avazu_x4_KD:
+    model: FCNv2
+    dataset_id: Avazu_x4
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 0
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    exp_num_layers: 4
+    lin_num_layers: 4
+    net_dropout: 0
+    batch_norm: True
+    layer_norm: False
+    num_heads: 4
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 1
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+FCNv2_Avazu_x4_KDrank:
+    model: FCNv2
+    dataset_id: Avazu_x4
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 0
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    exp_num_layers: 4
+    lin_num_layers: 4
+    net_dropout: 0
+    batch_norm: True
+    layer_norm: False
+    num_heads: 4
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 1
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+FCNv2_Avazu_x4_KDrank_EMA:
+    model: FCNv2
+    dataset_id: Avazu_x4
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 0
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    exp_num_layers: 4
+    lin_num_layers: 4
+    net_dropout: 0
+    batch_norm: True
+    layer_norm: False
+    num_heads: 4
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+RecursiveFCN_Avazu_x4:
+    model: RecursiveFCN
+    dataset_id: Avazu_x4
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 0
+    net_regularizer: 0
+    batch_size: 10000
+    grad_accum_steps: 4        # as the reference 4-GPU runs: per-rank batch = batch_size // 4 (10000 does not fit one A40)
+    embedding_dim: 16
+    net_dropout: 0.1
+    num_heads: 4
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    reduce_lr_on_plateau: True
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+
+RecursiveFCN_Avazu_x4_EMA:
+    model: RecursiveFCN
+    dataset_id: Avazu_x4
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 0
+    net_regularizer: 0
+    batch_size: 10000
+    grad_accum_steps: 4        # as the reference 4-GPU runs: per-rank batch = batch_size // 4 (10000 does not fit one A40)
+    embedding_dim: 16
+    net_dropout: 0.1
+    num_heads: 4
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    reduce_lr_on_plateau: False
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+
+RecursiveFCN_Avazu_x4_KD:
+    model: RecursiveFCN
+    dataset_id: Avazu_x4
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 0
+    net_regularizer: 0
+    batch_size: 10000
+    grad_accum_steps: 4        # as the reference 4-GPU runs: per-rank batch = batch_size // 4 (10000 does not fit one A40)
+    embedding_dim: 16
+    net_dropout: 0.1
+    num_heads: 4
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    reduce_lr_on_plateau: True
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+RecursiveFCN_Avazu_x4_KD_EMA:
+    model: RecursiveFCN
+    dataset_id: Avazu_x4
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 0
+    net_regularizer: 0
+    batch_size: 10000
+    grad_accum_steps: 4        # as the reference 4-GPU runs: per-rank batch = batch_size // 4 (10000 does not fit one A40)
+    embedding_dim: 16
+    net_dropout: 0.1
+    num_heads: 4
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    reduce_lr_on_plateau: False
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+# ---------------- KKBox_x1
+
+FCNv2_KKBox_x1:
+    model: FCNv2
+    dataset_id: KKBox_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 5.e-4
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 128
+    exp_num_layers: 3
+    lin_num_layers: 1
+    net_dropout: 0.2
+    batch_norm: True
+    layer_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+
+FCNv2_KKBox_x1_EMA:
+    model: FCNv2
+    dataset_id: KKBox_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 5.e-4
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 128
+    exp_num_layers: 3
+    lin_num_layers: 1
+    net_dropout: 0.2
+    batch_norm: True
+    layer_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+
+FCNv2_KKBox_x1_EMA_d9999:
+    model: FCNv2
+    dataset_id: KKBox_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 5.e-4
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 128
+    exp_num_layers: 3
+    lin_num_layers: 1
+    net_dropout: 0.2
+    batch_norm: True
+    layer_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    ema_decay: 0.9999
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+
+FCNv2_KKBox_x1_KD:
+    model: FCNv2
+    dataset_id: KKBox_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 5.e-4
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 128
+    exp_num_layers: 3
+    lin_num_layers: 1
+    net_dropout: 0.2
+    batch_norm: True
+    layer_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+FCNv2_KKBox_x1_KDrank:
+    model: FCNv2
+    dataset_id: KKBox_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 5.e-4
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 128
+    exp_num_layers: 3
+    lin_num_layers: 1
+    net_dropout: 0.2
+    batch_norm: True
+    layer_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+FCNv2_KKBox_x1_KDrank_EMA:
+    model: FCNv2
+    dataset_id: KKBox_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 5.e-4
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 128
+    exp_num_layers: 3
+    lin_num_layers: 1
+    net_dropout: 0.2
+    batch_norm: True
+    layer_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+RecursiveFCN_KKBox_x1:
+    model: RecursiveFCN
+    dataset_id: KKBox_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 5.e-4
+    net_regularizer: 0
+    batch_size: 10000
+    grad_accum_steps: 4        # reference: 4-GPU DDP, per-rank batch = batch_size // 4
+    embedding_dim: 128
+    net_dropout: 0.2
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    reduce_lr_on_plateau: True
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+
+RecursiveFCN_KKBox_x1_EMA:
+    model: RecursiveFCN
+    dataset_id: KKBox_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 5.e-4
+    net_regularizer: 0
+    batch_size: 10000
+    grad_accum_steps: 4        # reference: 4-GPU DDP, per-rank batch = batch_size // 4
+    embedding_dim: 128
+    net_dropout: 0.2
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    reduce_lr_on_plateau: False
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+
+RecursiveFCN_KKBox_x1_KD:
+    model: RecursiveFCN
+    dataset_id: KKBox_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 5.e-4
+    net_regularizer: 0
+    batch_size: 10000
+    grad_accum_steps: 4        # reference: 4-GPU DDP, per-rank batch = batch_size // 4
+    embedding_dim: 128
+    net_dropout: 0.2
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    reduce_lr_on_plateau: True
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+RecursiveFCN_KKBox_x1_KD_EMA:
+    model: RecursiveFCN
+    dataset_id: KKBox_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 5.e-4
+    net_regularizer: 0
+    batch_size: 10000
+    grad_accum_steps: 4        # reference: 4-GPU DDP, per-rank batch = batch_size // 4
+    embedding_dim: 128
+    net_dropout: 0.2
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    reduce_lr_on_plateau: False
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+# ---------------- ML_1M_7_x1
+
+FCNv2_ML_1M_7_x1:
+    model: FCNv2
+    dataset_id: ML_1M_7_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-2
+    net_regularizer: 0
+    batch_size: 4096
+    embedding_dim: 16
+    exp_num_layers: 2
+    lin_num_layers: 3
+    net_dropout: 0.1
+    batch_norm: True
+    layer_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2024
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+
+FCNv2_ML_1M_7_x1_EMA:
+    model: FCNv2
+    dataset_id: ML_1M_7_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-2
+    net_regularizer: 0
+    batch_size: 4096
+    embedding_dim: 16
+    exp_num_layers: 2
+    lin_num_layers: 3
+    net_dropout: 0.1
+    batch_norm: True
+    layer_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2024
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+
+FCNv2_ML_1M_7_x1_EMA_d9999:
+    model: FCNv2
+    dataset_id: ML_1M_7_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-2
+    net_regularizer: 0
+    batch_size: 4096
+    embedding_dim: 16
+    exp_num_layers: 2
+    lin_num_layers: 3
+    net_dropout: 0.1
+    batch_norm: True
+    layer_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2024
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    ema_decay: 0.9999
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+
+FCNv2_ML_1M_7_x1_KD:
+    model: FCNv2
+    dataset_id: ML_1M_7_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-2
+    net_regularizer: 0
+    batch_size: 4096
+    embedding_dim: 16
+    exp_num_layers: 2
+    lin_num_layers: 3
+    net_dropout: 0.1
+    batch_norm: True
+    layer_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2024
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+FCNv2_ML_1M_7_x1_KDrank:
+    model: FCNv2
+    dataset_id: ML_1M_7_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-2
+    net_regularizer: 0
+    batch_size: 4096
+    embedding_dim: 16
+    exp_num_layers: 2
+    lin_num_layers: 3
+    net_dropout: 0.1
+    batch_norm: True
+    layer_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2024
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+FCNv2_ML_1M_7_x1_KDrank_EMA:
+    model: FCNv2
+    dataset_id: ML_1M_7_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-2
+    net_regularizer: 0
+    batch_size: 4096
+    embedding_dim: 16
+    exp_num_layers: 2
+    lin_num_layers: 3
+    net_dropout: 0.1
+    batch_norm: True
+    layer_norm: False
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2024
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+RecursiveFCN_ML_1M_7_x1:
+    model: RecursiveFCN
+    dataset_id: ML_1M_7_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-2
+    net_regularizer: 0
+    batch_size: 4096
+    grad_accum_steps: 4        # reference: 4-GPU DDP, per-rank batch = batch_size // 4
+    embedding_dim: 16
+    net_dropout: 0.1
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    reduce_lr_on_plateau: True
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+
+RecursiveFCN_ML_1M_7_x1_EMA:
+    model: RecursiveFCN
+    dataset_id: ML_1M_7_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-2
+    net_regularizer: 0
+    batch_size: 4096
+    grad_accum_steps: 4        # reference: 4-GPU DDP, per-rank batch = batch_size // 4
+    embedding_dim: 16
+    net_dropout: 0.1
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    reduce_lr_on_plateau: False
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+
+RecursiveFCN_ML_1M_7_x1_KD:
+    model: RecursiveFCN
+    dataset_id: ML_1M_7_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-2
+    net_regularizer: 0
+    batch_size: 4096
+    grad_accum_steps: 4        # reference: 4-GPU DDP, per-rank batch = batch_size // 4
+    embedding_dim: 16
+    net_dropout: 0.1
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    reduce_lr_on_plateau: True
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+RecursiveFCN_ML_1M_7_x1_KD_EMA:
+    model: RecursiveFCN
+    dataset_id: ML_1M_7_x1
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-2
+    net_regularizer: 0
+    batch_size: 4096
+    grad_accum_steps: 4        # reference: 4-GPU DDP, per-rank batch = batch_size // 4
+    embedding_dim: 16
+    net_dropout: 0.1
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    reduce_lr_on_plateau: False
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+# ---------------- KDD12_x10
+
+FCNv2_KDD12_x10:
+    model: FCNv2
+    dataset_id: KDD12_x10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-7
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    exp_num_layers: 6
+    lin_num_layers: 0
+    net_dropout: 0
+    batch_norm: True
+    layer_norm: True
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+
+FCNv2_KDD12_x10_EMA:
+    model: FCNv2
+    dataset_id: KDD12_x10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-7
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    exp_num_layers: 6
+    lin_num_layers: 0
+    net_dropout: 0
+    batch_norm: True
+    layer_norm: True
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+
+FCNv2_KDD12_x10_EMA_d9999:
+    model: FCNv2
+    dataset_id: KDD12_x10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-7
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    exp_num_layers: 6
+    lin_num_layers: 0
+    net_dropout: 0
+    batch_norm: True
+    layer_norm: True
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    ema_decay: 0.9999
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+
+FCNv2_KDD12_x10_KD:
+    model: FCNv2
+    dataset_id: KDD12_x10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-7
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    exp_num_layers: 6
+    lin_num_layers: 0
+    net_dropout: 0
+    batch_norm: True
+    layer_norm: True
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+FCNv2_KDD12_x10_KDrank:
+    model: FCNv2
+    dataset_id: KDD12_x10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-7
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    exp_num_layers: 6
+    lin_num_layers: 0
+    net_dropout: 0
+    batch_norm: True
+    layer_norm: True
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+FCNv2_KDD12_x10_KDrank_EMA:
+    model: FCNv2
+    dataset_id: KDD12_x10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-7
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    exp_num_layers: 6
+    lin_num_layers: 0
+    net_dropout: 0
+    batch_norm: True
+    layer_norm: True
+    num_heads: 1
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    reduce_lr_on_plateau: False
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+RecursiveFCN_KDD12_x10:
+    model: RecursiveFCN
+    dataset_id: KDD12_x10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-7
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    net_dropout: 0.0
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    reduce_lr_on_plateau: True
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+
+RecursiveFCN_KDD12_x10_EMA:
+    model: RecursiveFCN
+    dataset_id: KDD12_x10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-7
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    net_dropout: 0.0
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    reduce_lr_on_plateau: False
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+
+RecursiveFCN_KDD12_x10_KD:
+    model: RecursiveFCN
+    dataset_id: KDD12_x10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-7
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    net_dropout: 0.0
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 2
+    reduce_lr_on_plateau: True
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion
+    distill_weight: 1.0
+    distill_rank_temp: 1.0
+
+RecursiveFCN_KDD12_x10_KD_EMA:
+    model: RecursiveFCN
+    dataset_id: KDD12_x10
+    loss: 'binary_crossentropy'
+    metrics: ['logloss', 'AUC']
+    task: binary_classification
+    optimizer: adam
+    learning_rate: 1.e-3
+    embedding_regularizer: 1.e-7
+    net_regularizer: 0
+    batch_size: 10000
+    embedding_dim: 16
+    net_dropout: 0.0
+    num_heads: 1
+    layer_norm: false
+    max_gradient_norm: 10.0
+    epochs: 100
+    shuffle: True
+    seed: 2025
+    monitor: {'AUC': 1, 'logloss': 0}
+    monitor_mode: 'max'
+    early_stop_patience: 4
+    reduce_lr_on_plateau: False
+    rrt_eval_steps: 8
+    tower_specs:
+    - {direction: e2l, name: e2l, pattern: EEELLLLL}
+    - {direction: l2e, name: l2e, pattern: LLLLLEEE}
+    step_mlp_hidden: 512
+    step_mlp_every: 2
+    anytime_bce_weight: 0.0
+    anytime_depth_decay: 1.0
+    anytime_supervision_depths: [4, 6, 8, 10, 12, 16]
+    aux_log_every: 200
+    budget_condition_phase: false
+    budget_condition_router: true
+    budget_condition_update: true
+    budget_max_hint: 32
+    cross_budget_margin_delta: 0.01
+    cross_budget_progressive_weight: 0.01
+    cross_budget_uncertain_margin: 2.0
+    cross_norm: true
+    cross_norm_cap: 10000.0
+    depth_slot_size: 0
+    depth_step_init: 1.0
+    depth_step_max: 2.0
+    depth_step_size: 0
+    embedding_lr_mult: 1.0
+    eta_late_weight: 0.0
+    exp_num_layers: 3
+    halt_compute_cost: 0.01
+    halt_eval_mode: fixed
+    halt_hidden_dim: 32
+    halt_lr_mult: 1.0
+    halt_min_steps: 2
+    halt_oracle_weight: 0.0
+    halt_ponder_weight: 0.0
+    halt_threshold: 0.5
+    lin_num_layers: 5
+    lora_bank_mode: shared
+    lora_bank_size: 8
+    lora_lr_mult: 2.0
+    lora_rank: 96
+    lora_router_hidden_dim: 64
+    lora_router_mode: state_depth
+    lora_router_temperature: 1.0
+    lora_router_top_k: 2
+    lr_scheduler: null
+    multi_budget_choices: [4, 8, 12]
+    multi_budget_depth_decay: 1.0
+    multi_budget_sample_count: 3
+    multi_budget_training: true
+    num_towers: 2
+    other_lr_mult: 1.0
+    phase_gate_mode: fixed_schedule
+    phase_hidden_dim: 64
+    phase_lr_mult: 1.0
+    phase_time_scale_init: 12.0
+    progressive_margin_delta: 0.01
+    progressive_margin_weight: 0.0
+    progressive_uncertain_margin: 2.0
+    rarity_table_path: null
+    route_dropout_family: drop1
+    route_dropout_prob: 0.5
+    router_balance_weight: 0.0
+    router_entropy_weight: 0.0
+    shared_lr_mult: 1.0
+    stability_ratio_target: 1.0
+    stability_ratio_weight: 0.0
+    track_anytime: true
+    train_depth_choices: [4, 8, 12]
+    train_depth_mode: random_target
+    train_max_steps: 12
+    train_min_steps: 4
+    update_eta_init: 0.98
+    update_eta_max: 1.0
+    update_hidden_dim: 64
+    update_lr_mult: 2.0
+    use_halting_head: false
+    use_update_gate: true
+    ema_decay: 0.9995
+    ema_scope: all
+    lr_schedule: cosine
+    cosine_epochs: 20
+    lr_min: 1.e-5
+    teacher_logits: teacher_fcnsp_5seed
+    distill_mode: fusion_rank
+    distill_weight: 1.0
+    distill_rank_temp: 1.0

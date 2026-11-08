@@ -1,0 +1,8 @@
+# FCN_sp seed variance + KD teacher (KDD12_x10): 5 seeds, row-aligned train predictions saved
+base_config: ./config/
+base_expid: FCNv2_KDD12_x10
+dataset_id: KDD12_x10
+
+tuner_space:
+    seed: [2021, 2022, 2023, 2024, 2025]
+    save_train_pred: True   # predictions for the 5-seed ensemble / distillation teacher
